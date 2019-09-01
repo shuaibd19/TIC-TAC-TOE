@@ -13,15 +13,19 @@ REFERENCE CODE: http://www.cppforschool.com/project/tic-tac-toe-project.html */
 #include <algorithm>
 #include <random>
 
-HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 using namespace std;
 
+//a char array used to store the inital board elements
 char cell[9] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' };
 
 //function used for the drawing of the board state
 void dispBoard();
+//function checks whether or not a winning state has been achieved
+//either returning a true or a false value
 bool winningState();
+//player vs player mode
 void playerVsPlayer();
+//computer vs player mode
 void computerVsPlayer();
 
 int main()
@@ -73,7 +77,8 @@ void dispBoard()
 bool winningState()
 {
 	bool gameWon = false;
-
+	//checking wether the data stored in the cell array matches its
+	//specified neighbors and returning true or false accordingly
 	if (cell[0] == cell[1] && cell[1] == cell[2])
 	{
 		gameWon = true;
@@ -132,21 +137,33 @@ void playerVsPlayer()
 	char playerSprite;
 	int player = 1;
 	bool gameWon = false;
+	//game loop continues for as long as nobody has won
 	while (!gameWon)
 	{
+		//get the current winning state of the board
 		gameWon = winningState();
+		//in the case of a draw i've added a counter to make sure
+		//after 9 moves (the entire board) has been filled and 
+		//no one has won then to break from the function and declare
+		//the game a draw
 		if (moveCount == 9)
 		{
 			break;
 		}
 		dispBoard();
+
+		//toggling between players
 		player = (player % 2) ? 1 : 2;
 		cout << "Player Number " << player << " please select a character: ";
 		cin >> choice;
+		//making sure the player's choice matches with the cell values
 		choice = toupper(choice);
 
+		//setting the sprites for both players
 		playerSprite = (player == 1) ? 'X' : 'O';
 
+		//checking if the player enters a valid entry and in such a case
+		//put the player sprite in the position of the cell
 		if (choice == 'A' && cell[0] == 'A')
 		{
 			cell[0] = playerSprite;
@@ -192,6 +209,8 @@ void playerVsPlayer()
 			cell[8] = playerSprite;
 		}
 
+		//error checking for incorrect inputc - I know Noman.. I shouldn't
+		//just exit from the program like that...
 		else
 		{
 			cout << "INVALID MOVE!! :-O\n";
@@ -201,6 +220,9 @@ void playerVsPlayer()
 		moveCount++;
 	}
 
+	//logic for finding out what to print when declaring the winner
+	//using the number of moves. odd and even checking depening on who 
+	//went first
 	if ((moveCount % 2) == 1)
 	{
 		player = 2;
@@ -223,11 +245,15 @@ void computerVsPlayer()
 	srand((unsigned int)time(NULL));
 	int moveCount = 0;
 	char choice = '/';
+	//i also added a computer choice variable different from 
+	//the player choice
 	char compChoice = '.';
 	char playerSprite;
 	int player = 1;
 	bool gameWon = false;
 
+	//i created a vector copy of the possible characters
+	//and you will see why below
 	vector<char> charSet;
 	charSet.push_back('A');
 	charSet.push_back('B');
@@ -250,13 +276,17 @@ void computerVsPlayer()
 		player = (player % 2) ? 1 : 2;
 		playerSprite = (player == 1) ? 'X' : 'O';
 
+		//for the human 
 		if (player == 1)
 		{
 			cout << "Player Number " << player << " please select a character: ";
 			cin >> choice;
 			choice = toupper(choice);
-			vector<char>::iterator playerErase;
 
+			//creating an iterator of type char
+			vector<char>::iterator playerErase;
+			//find the character just entered by the human player and delete it from
+			//the vector created above so that the computer doesn't use it
 			playerErase = find(charSet.begin(), charSet.end(), choice);
 			if (playerErase != charSet.end())
 			{
@@ -264,14 +294,18 @@ void computerVsPlayer()
 			}
 
 		}
+		//for the computer
 		if (player == 2)
 		{
+			//create another iterator of type char this time for
+			//the computer
 			vector<char>::iterator compErase;
-			
+			//shuffle the character set
 			random_shuffle(charSet.begin(), charSet.end());
-
+			//the computer takes the first element on the character set after shuffling
 			compChoice = charSet.front();
-
+			//just as before this time the computer choice is removed from the character 
+			//set so that the computer never double picks something that was already chosen
 			compErase = find(charSet.begin(), charSet.end(), compChoice);
 			if (compErase != charSet.end())
 			{
@@ -344,6 +378,9 @@ void computerVsPlayer()
 			player = 1;
 		}
 
+		//this time in the case of a loss the computer writes to a text file which 
+		//has its entire loss history and adds a -1 to it and likewise with a win
+		//only difference being that it appends a 1 to the text file
 		if (gameWon)
 		{
 			if (player == 1)
